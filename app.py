@@ -1,13 +1,13 @@
 import os, uuid
 from flask import Flask, request, render_template, send_file
-from pypdf import PdfReader, PdfWriter
+import fitz  # Hızlı işlem yapan PyMuPDF kütüphanesi
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1 GB Sınırı
 UPLOAD_FOLDER = 'temp_files'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def parse_pages(page_str):
+def parse_pages(page_str, total_pages):
     pages_to_keep = set()
     if not page_str.strip(): return pages_to_keep
     
@@ -17,15 +17,19 @@ def parse_pages(page_str):
             try:
                 s, e = map(int, part.split('-'))
                 for i in range(s, e + 1):
-                    pages_to_keep.add(i - 1)  # 0 tabanlı indeks için -1
+                    if 1 <= i <= total_pages:
+                        pages_to_keep.add(i - 1)
             except ValueError:
                 continue
         else:
             try:
-                pages_to_keep.add(int(part) - 1)
+                p = int(part)
+                if 1 <= p <= total_pages:
+                    pages_to_keep.add(p - 1)
             except ValueError:
                 continue
-    return pages_to_keep
+    # PyMuPDF select() işlemi için sıralı bir liste gerekiyor
+    return sorted(list(pages_to_keep))
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -36,34 +40,36 @@ def index():
         uid = str(uuid.uuid4())
         in_path = os.path.join(UPLOAD_FOLDER, f'{uid}_in.pdf')
         out_path = os.path.join(UPLOAD_FOLDER, f'{uid}_out.pdf')
+        
+        # Dosyayı sunucuya kaydet
         file.save(in_path)
 
         try:
-            reader = PdfReader(in_path)
-            writer = PdfWriter()
-            total_pages = len(reader.pages)
+            # PyMuPDF ile dosyayı aç (RAM'i yormadan diskten okur)
+            doc = fitz.open(in_path)
+            total_pages = len(doc)
             
-            # Kullanıcının seçtiği (kalmasını istediği) sayfaları alıyoruz
-            pages_to_keep = parse_pages(request.form.get('pages', ''))
+            pages_to_keep = parse_pages(request.form.get('pages', ''), total_pages)
             
-            # Sadece seçilen sayfaları yeni PDF'e ekle
-            for i in range(total_pages):
-                if i in pages_to_keep:
-                    writer.add_page(reader.pages[i])
+            if not pages_to_keep:
+                doc.close()
+                return "Hata: Belirttiğiniz sayfa aralığı mevcut PDF'te bulunamadı!", 400
             
-            # Eğer girilen aralık dosya sayfa sayısıyla tamamen alakasızsa ve boş kaldıysa hata verme kontrolü
-            if len(writer.pages) == 0:
-                return "Hata: Belirttiğiniz sayfa aralığı mevcut PDF'te bulunamadı veya hiçbir sayfa seçilmedi!", 400
+            # Sadece seçilen sayfaları dosyada bırakır (İnanılmaz hızlı bir işlemdir)
+            doc.select(pages_to_keep)
             
-            with open(out_path, 'wb') as f:
-                writer.write(f)
+            # Yeni dosyayı optimize ederek kaydet ve kapat
+            doc.save(out_path, garbage=3, deflate=True)
+            doc.close()
+            
+            # HAYAT KURTARAN KISIM: 512MB RAM şişmesin diye ilk yüklenen orijinal dosyayı anında sil
+            if os.path.exists(in_path):
+                os.remove(in_path)
                 
             return send_file(out_path, as_attachment=True, download_name=f"Secilenler_{file.filename}")
+            
         except Exception as e:
             return f"Sunucu Hatası: {str(e)}", 500
-        finally:
-            # İşlem bitince sunucu temizliği (isteğe bağlı eklenebilir)
-            pass
             
     return render_template('index.html')
 
