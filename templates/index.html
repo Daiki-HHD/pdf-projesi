@@ -12,7 +12,6 @@
             --card-border: rgba(255, 255, 255, 0.08);
             --text-title: #ffffff;
             --text-body: #94a3b8;
-            /* Göz alıcı modern gradyan: Canlı Gün Batımı tonları */
             --primary-grad: linear-gradient(135deg, #ff007a 0%, #ff4e50 50%, #f9d423 100%);
             --btn-shadow: rgba(255, 14, 114, 0.35);
         }
@@ -32,7 +31,6 @@
             overflow: hidden;
         }
 
-        /* Arka plandaki lüks, yumuşak ışık küreleri (Gradient Mesh Efekti) */
         body::before, body::after {
             content: "";
             position: absolute;
@@ -101,7 +99,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* Premium Sürükle-Bırak Alanı */
         .file-upload-wrapper {
             position: relative;
             width: 100%;
@@ -113,6 +110,7 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden; /* Taşmayı önlemek için */
         }
 
         .file-upload-wrapper:hover {
@@ -121,11 +119,16 @@
             transform: scale(1.01);
         }
 
+        /* Tıklama Alanını Kısıtlayan Doğru Yerleşim */
         .file-upload-wrapper input[type="file"] {
             position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
             opacity: 0;
             cursor: pointer;
+            z-index: 2;
         }
 
         .upload-icon {
@@ -150,6 +153,8 @@
             border-radius: 16px;
             font-size: 16px;
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 5; /* Buton ve kutuları öne çekiyoruz */
         }
 
         input[type="text"]:focus {
@@ -166,7 +171,6 @@
             font-weight: 500;
         }
 
-        /* Dikkat Çekici Canlı Buton */
         button {
             width: 100%;
             background: var(--primary-grad);
@@ -180,6 +184,8 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 30px var(--btn-shadow);
             margin-top: 10px;
+            position: relative;
+            z-index: 5;
         }
 
         button:hover {
@@ -205,6 +211,8 @@
             font-weight: 600;
             font-size: 14px;
             min-height: 20px;
+            position: relative;
+            z-index: 5;
         }
     </style>
 </head>
@@ -219,8 +227,8 @@
             <div class="file-upload-wrapper">
                 <div class="upload-icon">📄</div>
                 <div id="fileNameDisplay" style="font-size: 15px; font-weight: 600; color: #f1f5f9;">PDF dosyasını buraya bırakın veya seçin</div>
+                <input type="file" id="pdfFile" accept=".pdf" required onchange="updateFileName(this)">
             </div>
-            <input type="file" id="pdfFile" accept=".pdf" required onchange="updateFileName(this)" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
         </div>
         
         <div class="form-group">
