@@ -3,37 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Işık Hızında PDF Ayıklayıcı</title>
+    <title>Süper Hızlı PDF Ayıklayıcı 🚀</title>
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #ffffff; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #1e1e1e; padding: 30px; border-radius: 10px; border: 1px solid #333; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #aaa; }
-        input[type="file"], input[type="text"] { width: 100%; padding: 12px; margin-bottom: 25px; box-sizing: border-box; background: #2a2a2a; border: 1px solid #444; color: #fff; border-radius: 6px; font-size: 16px; }
-        button { width: 100%; background: #3498db; color: white; border: none; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border-radius: 6px; }
-        button:hover { background: #2980b9; }
-        button:disabled { background: #555; cursor: not-allowed; }
-        .info { font-size: 12px; color: #888; margin-top: -20px; margin-bottom: 20px; display: block; }
-        #status { margin-top: 15px; font-weight: bold; font-size: 14px; }
+        :root {
+            --bg-main: #090d16;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-title: #ffffff;
+            --text-body: #94a3b8;
+            /* Göz alıcı modern gradyan: Canlı Gün Batımı tonları */
+            --primary-grad: linear-gradient(135deg, #ff007a 0%, #ff4e50 50%, #f9d423 100%);
+            --btn-shadow: rgba(255, 14, 114, 0.35);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-body);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Arka plandaki lüks, yumuşak ışık küreleri (Gradient Mesh Efekti) */
+        body::before, body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            opacity: 0.45;
+            z-index: -1;
+        }
+        body::before {
+            width: 400px;
+            height: 400px;
+            background: #ff007a;
+            top: -10%;
+            left: 20%;
+        }
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: #4f46e5;
+            bottom: -10%;
+            right: 15%;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            padding: 45px 35px;
+            border-radius: 32px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 
+                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            text-align: center;
+            position: relative;
+        }
+
+        h2 {
+            font-size: 30px;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--text-title);
+            letter-spacing: -0.8px;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 35px;
+            font-weight: 500;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 28px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #f1f5f9;
+            letter-spacing: 0.5px;
+        }
+
+        /* Premium Sürükle-Bırak Alanı */
+        .file-upload-wrapper {
+            position: relative;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 18px;
+            padding: 30px 20px;
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .file-upload-wrapper:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+            transform: scale(1.01);
+        }
+
+        .file-upload-wrapper input[type="file"] {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .upload-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            font-size: 20px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 16px 18px;
+            box-sizing: border-box;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-radius: 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .info {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 8px;
+            display: block;
+            font-weight: 500;
+        }
+
+        /* Dikkat Çekici Canlı Buton */
+        button {
+            width: 100%;
+            background: var(--primary-grad);
+            color: #ffffff;
+            border: none;
+            padding: 18px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px var(--btn-shadow);
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px var(--btn-shadow);
+            filter: saturate(1.15);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button:disabled {
+            background: #1e293b;
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #64748b;
+            filter: none;
+        }
+
+        #status {
+            margin-top: 25px;
+            font-weight: 600;
+            font-size: 14px;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <h2>Süper Hızlı PDF Ayıklayıcı 🚀</h2>
-        <p style="color: #2ecc71; font-size: 14px; font-weight: bold;">Cihaz İçi Mod: Dosyanız internete yüklenmez, saniyeler içinde telefonunuzda bitirilir.</p>
+        <h2>PDF Ayıklayıcı</h2>
+        <div class="subtitle">Güçlü · Limitsiz · Tamamen Cihazınızda</div>
         
-        <label>PDF Dosyası Seç:</label>
-        <input type="file" id="pdfFile" accept=".pdf" required>
+        <div class="form-group">
+            <label>Belge Seçimi</label>
+            <div class="file-upload-wrapper">
+                <div class="upload-icon">📄</div>
+                <div id="fileNameDisplay" style="font-size: 15px; font-weight: 600; color: #f1f5f9;">PDF dosyasını buraya bırakın veya seçin</div>
+            </div>
+            <input type="file" id="pdfFile" accept=".pdf" required onchange="updateFileName(this)" style="position: absolute; top:0; left:0; width:100%; height:100%; opacity:0; cursor:pointer;">
+        </div>
         
-        <label>Kalmasını İstediğiniz Sayfalar:</label>
-        <input type="text" id="pageRanges" placeholder="Örn: 20-50, 60, 70-80" required>
-        <span class="info">Drive mantığıyla virgül ve tire kullanabilirsiniz.</span>
+        <div class="form-group">
+            <label>Tutulacak Sayfa Aralığı</label>
+            <input type="text" id="pageRanges" placeholder="Örn: 20-50, 60, 70-80" required>
+            <span class="info">Yazılan sayfalar dışındaki her şey temizlenir.</span>
+        </div>
         
         <button id="processBtn" onclick="processPdf()">Sayfaları Ayıkla ve İndir</button>
         <div id="status"></div>
     </div>
 
     <script>
+        function updateFileName(input) {
+            const display = document.getElementById('fileNameDisplay');
+            if(input.files.length > 0) {
+                display.innerText = input.files[0].name;
+                display.style.color = "#ff4e50";
+            } else {
+                display.innerText = "PDF dosyasını buraya bırakın veya seçin";
+                display.style.color = "#f1f5f9";
+            }
+        }
+
         async function processPdf() {
             const fileInput = document.getElementById('pdfFile');
             const rangeInput = document.getElementById('pageRanges').value;
@@ -41,15 +252,15 @@
             const btn = document.getElementById('processBtn');
 
             if (!fileInput.files.length) {
-                statusDiv.style.color = "#e74c3c";
+                statusDiv.style.color = "#ff4e50";
                 statusDiv.innerText = "Lütfen önce bir PDF dosyası seçin!";
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "Ayıklanıyor...";
+            btn.innerText = "İşleniyor...";
             statusDiv.style.color = "#f1c40f";
-            statusDiv.innerText = "İşlem cihazınızda yapılıyor, lütfen bekleyin...";
+            statusDiv.innerText = "Sayfalar cihazınızda ayıklanıyor, lütfen bekleyin...";
 
             try {
                 const file = fileInput.files[0];
@@ -83,7 +294,6 @@
                     throw new Error("Geçerli bir sayfa aralığı bulunamadı!");
                 }
 
-                // Sayfaları sırala ve mükerrer kayıtları temizle
                 const uniquePages = [...new Set(pagesToKeep)].sort((a, b) => a - b);
 
                 const newDoc = await PDFDocument.create();
@@ -100,10 +310,10 @@
                 link.click();
                 document.body.removeChild(link);
 
-                statusDiv.style.color = "#2ecc71";
-                statusDiv.innerText = "Başarılı! Yeni PDF anında indirildi.";
+                statusDiv.style.color = "#00e676";
+                statusDiv.innerText = "✓ Başarılı! Yeni PDF anında indirildi.";
             } catch (err) {
-                statusDiv.style.color = "#e74c3c";
+                statusDiv.style.color = "#ff4e50";
                 statusDiv.innerText = "Hata: " + err.message;
             } finally {
                 btn.disabled = false;
