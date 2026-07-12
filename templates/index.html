@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sınırsız PDF Aracı</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: #fff; padding: 20px; }
+        input, button { width: 100%; padding: 15px; margin-bottom: 15px; border-radius: 5px; border: none; box-sizing: border-box; }
+        input { background: #222; color: #fff; }
+        button { background: #e74c3c; color: #fff; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>PDF Sayfa Silici (1024 MB Limit)</h2>
+    <form method="POST" enctype="multipart/form-data">
+        <label>PDF Dosyası Yükle:</label>
+        <input type="file" name="pdf_file" accept=".pdf" required>
+        
+        <label>Silinecek Sayfalar (Örn: 1-5, 8, 12-20):</label>
+        <input type="text" name="pages" placeholder="1-5, 8, 12-20" required>
+        
+        <button type="submit" onclick="this.innerText='İşleniyor, bekle...'">Sayfaları Uçur</button>
+    </form>
+</body>
+</html>
