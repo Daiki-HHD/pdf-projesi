@@ -3,28 +3,35 @@ from flask import Flask, request, render_template, send_file
 from pypdf import PdfReader, PdfWriter
 
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024 * 1024  # 1 GB Sınırı
 UPLOAD_FOLDER = 'temp_files'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-def parse_pages(page_str, total_pages):
-    pages_to_delete = set()
-    if not page_str.strip(): return pages_to_delete
+def parse_pages(page_str):
+    pages_to_keep = set()
+    if not page_str.strip(): return pages_to_keep
+    
     for part in page_str.split(','):
         part = part.strip()
         if '-' in part:
-            s, e = map(int, part.split('-'))
-            for i in range(s, e + 1):
-                pages_to_delete.add(i - 1)
+            try:
+                s, e = map(int, part.split('-'))
+                for i in range(s, e + 1):
+                    pages_to_keep.add(i - 1)  # 0 tabanlı indeks için -1
+            except ValueError:
+                continue
         else:
-            pages_to_delete.add(int(part) - 1)
-    return pages_to_delete
+            try:
+                pages_to_keep.add(int(part) - 1)
+            except ValueError:
+                continue
+    return pages_to_keep
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
         file = request.files.get('pdf_file')
-        if not file or file.filename == '': return "Dosya yok!", 400
+        if not file or file.filename == '': return "Dosya seçilmedi!", 400
         
         uid = str(uuid.uuid4())
         in_path = os.path.join(UPLOAD_FOLDER, f'{uid}_in.pdf')
@@ -34,18 +41,30 @@ def index():
         try:
             reader = PdfReader(in_path)
             writer = PdfWriter()
-            pages_to_del = parse_pages(request.form.get('pages', ''), len(reader.pages))
+            total_pages = len(reader.pages)
             
-            for i in range(len(reader.pages)):
-                if i not in pages_to_del:
+            # Kullanıcının seçtiği (kalmasını istediği) sayfaları alıyoruz
+            pages_to_keep = parse_pages(request.form.get('pages', ''))
+            
+            # Sadece seçilen sayfaları yeni PDF'e ekle
+            for i in range(total_pages):
+                if i in pages_to_keep:
                     writer.add_page(reader.pages[i])
+            
+            # Eğer girilen aralık dosya sayfa sayısıyla tamamen alakasızsa ve boş kaldıysa hata verme kontrolü
+            if len(writer.pages) == 0:
+                return "Hata: Belirttiğiniz sayfa aralığı mevcut PDF'te bulunamadı veya hiçbir sayfa seçilmedi!", 400
             
             with open(out_path, 'wb') as f:
                 writer.write(f)
                 
-            return send_file(out_path, as_attachment=True, download_name=f"Yeni_{file.filename}")
+            return send_file(out_path, as_attachment=True, download_name=f"Secilenler_{file.filename}")
         except Exception as e:
-            return str(e), 500
+            return f"Sunucu Hatası: {str(e)}", 500
+        finally:
+            # İşlem bitince sunucu temizliği (isteğe bağlı eklenebilir)
+            pass
+            
     return render_template('index.html')
 
 if __name__ == '__main__':
