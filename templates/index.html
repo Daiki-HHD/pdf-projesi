@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Süper Hızlı PDF Ayıklayıcı 🚀</title>
+    
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="apple-touch-icon" href="/icon.png">
+    
+    <meta name="theme-color" content="#090d16">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <style>
         :root {
@@ -110,25 +118,12 @@
             text-align: center;
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden; /* Taşmayı önlemek için */
         }
 
         .file-upload-wrapper:hover {
             border-color: rgba(255, 255, 255, 0.3);
             background: rgba(255, 255, 255, 0.03);
             transform: scale(1.01);
-        }
-
-        /* Tıklama Alanını Kısıtlayan Doğru Yerleşim */
-        .file-upload-wrapper input[type="file"] {
-            position: absolute;
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%;
-            opacity: 0;
-            cursor: pointer;
-            z-index: 2;
         }
 
         .upload-icon {
@@ -153,8 +148,6 @@
             border-radius: 16px;
             font-size: 16px;
             transition: all 0.3s ease;
-            position: relative;
-            z-index: 5; /* Buton ve kutuları öne çekiyoruz */
         }
 
         input[type="text"]:focus {
@@ -184,8 +177,6 @@
             transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 30px var(--btn-shadow);
             margin-top: 10px;
-            position: relative;
-            z-index: 5;
         }
 
         button:hover {
@@ -211,8 +202,6 @@
             font-weight: 600;
             font-size: 14px;
             min-height: 20px;
-            position: relative;
-            z-index: 5;
         }
     </style>
 </head>
@@ -224,11 +213,11 @@
         
         <div class="form-group">
             <label>Belge Seçimi</label>
-            <div class="file-upload-wrapper">
+            <div class="file-upload-wrapper" onclick="document.getElementById('pdfFile').click()">
                 <div class="upload-icon">📄</div>
-                <div id="fileNameDisplay" style="font-size: 15px; font-weight: 600; color: #f1f5f9;">PDF dosyasını buraya bırakın veya seçin</div>
-                <input type="file" id="pdfFile" accept=".pdf" required onchange="updateFileName(this)">
+                <div id="fileNameDisplay" style="font-size: 15px; font-weight: 600; color: #f1f5f9;">PDF dosyasını seçmek için dokunun</div>
             </div>
+            <input type="file" id="pdfFile" accept=".pdf" required onchange="updateFileName(this)" style="display: none;">
         </div>
         
         <div class="form-group">
@@ -248,7 +237,7 @@
                 display.innerText = input.files[0].name;
                 display.style.color = "#ff4e50";
             } else {
-                display.innerText = "PDF dosyasını buraya bırakın veya seçin";
+                display.innerText = "PDF dosyasını seçmek için dokunun";
                 display.style.color = "#f1f5f9";
             }
         }
